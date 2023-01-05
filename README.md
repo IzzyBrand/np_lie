@@ -15,4 +15,5 @@ $ python3 test.py
 [PASSED] SE3 vee inverts hat
 [PASSED] SE3 log inverts exp
 [PASSED] SE3 Log inverts Exp
+[PASSED] S3 exp matches SO3 exp
 ```

@@ -8,6 +8,20 @@ import numpy as np
 
 from np_lie import *
 
+
+# From https://github.com/brentyi/jaxlie/blob/76c3042340d3db79854e4a5ca83f04dae0330079/jaxlie/_so3.py#L270-L281
+def mat_from_quat(quat: np.ndarray) -> np.ndarray:
+    norm = quat @ quat
+    q = quat * np.sqrt(2.0 / norm)
+    q = np.outer(q, q)
+    return np.array(
+        [
+            [1.0 - q[2, 2] - q[3, 3], q[1, 2] - q[3, 0], q[1, 3] + q[2, 0]],
+            [q[1, 2] + q[3, 0], 1.0 - q[1, 1] - q[3, 3], q[2, 3] - q[1, 0]],
+            [q[1, 3] - q[2, 0], q[2, 3] + q[1, 0], 1.0 - q[1, 1] - q[2, 2]],
+        ]
+    )
+
 ###############################################################################
 # SO3
 ###############################################################################
@@ -30,6 +44,14 @@ def SO3_left_jacobians_invert():
     J_l = SO3_left_jacobian(w)
     J_l_inv = SO3_left_jacobian_inverse(w)
     return np.allclose(np.eye(3), J_l @ J_l_inv)
+
+###############################################################################
+# SO3
+###############################################################################
+
+def S3_exp_matches_SO3_exp():
+    w = np.random.randn(3)
+    return np.allclose(mat_from_quat(S3_exp(w)), SO3_exp(w))
 
 ###############################################################################
 # SE3
@@ -61,6 +83,7 @@ def main():
         "SE3 vee inverts hat": SE3_hat_vee,
         "SE3 log inverts exp": SE3_exp_log,
         "SE3 Log inverts Exp": SE3_Exp_Log,
+        "S3 exp matches SO3 exp": S3_exp_matches_SO3_exp,
     }
 
     for name, test_fn in tests.items():
